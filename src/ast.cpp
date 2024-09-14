@@ -1,33 +1,29 @@
 #include "ast.h"
-#include <utility> // For std::move
 
-// Binary Operation Node Constructor
+// BinOp Implementation
 BinOp::BinOp(ASTPtr left, Token op, ASTPtr right)
     : left(std::move(left)), op(op), right(std::move(right)) {}
 
-// Number Node Constructor
-Num::Num(Token token)
-    : token(token), value(std::stod(token.value)) {}
+// Num Implementation
+Num::Num(Token token) : token(token), value(std::stod(token.value)) {}
 
-// Unary Operation Node Constructor
+// UnaryOp Implementation
 UnaryOp::UnaryOp(Token op, ASTPtr expr)
     : op(op), expr(std::move(expr)) {}
 
-// Compound Node Constructor
+// Compound Implementation
 Compound::Compound() noexcept {}
 
 void Compound::addChild(ASTPtr child) {
     children.push_back(std::move(child));
 }
 
-
-// Assignment Node Constructor
+// Assign Implementation
 Assign::Assign(ASTPtr left, Token op, ASTPtr right)
     : left(std::move(left)), op(op), right(std::move(right)) {}
 
-// Variable Node Constructor
-Var::Var(Token token)
-    : token(token), value(token.value) {}
+// Var Implementation
+Var::Var(Token token) : token(token), value(token.value) {}
 
-// No Operation Node Constructor
+// NoOp Implementation
 NoOp::NoOp() noexcept {}

@@ -3,11 +3,12 @@ project(MyCompiler)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Include the directory for header files
+# Include directories
 include_directories(include)
 
-# Define the main executable
+# Main Compiler Executable
 add_executable(MyCompiler
     src/main.cpp
     src/lexer.cpp
@@ -29,21 +30,17 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
 )
 
-# Fetch and make available
+# Make available
 FetchContent_MakeAvailable(googletest)
 
-# Create the test executable
-add_executable(runTests
-    tests/tests.cpp
-    src/lexer.cpp
-    src/parser.cpp
-    src/ast.cpp
-    src/interpreter.cpp
-    src/symboltable.cpp
-)
+# Add test executables
+file(GLOB TEST_SOURCES "tests/*.cpp")
+
+add_executable(runTests ${TEST_SOURCES} src/lexer.cpp src/parser.cpp src/ast.cpp src/interpreter.cpp src/symboltable.cpp)
 
 # Link Google Test libraries
 target_link_libraries(runTests gtest gtest_main)
 
-# Add the tests to CMake
-add_test(NAME MyCompilerTests COMMAND runTests)
+# Add the tests to CTest
+include(GoogleTest)
+gtest_discover_tests(runTests)

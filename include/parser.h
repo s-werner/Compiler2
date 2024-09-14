@@ -7,12 +7,12 @@
 class Parser {
 public:
     Parser(Lexer& lexer);
-    ASTPtr parse();
+    ASTPtr parse(); // Parses the entire input as a program (compound statements)
 
 private:
     Lexer& lexer;
     Token currentToken;
-    Token nextToken;  // Lookahead token
+    Token nextToken; // Lookahead token
 
     void eat(TokenType type);
     ASTPtr factor();
@@ -21,7 +21,7 @@ private:
     ASTPtr statement();
     ASTPtr assignmentStatement();
     ASTPtr variable();
-    ASTPtr program();
+    ASTPtr program();  // Method for parsing multiple statements
 };
 
 #endif // PARSER_H

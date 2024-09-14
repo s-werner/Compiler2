@@ -6,6 +6,7 @@
 #include <vector>
 #include "token.h"
 
+// Forward declarations
 class AST;
 using ASTPtr = std::unique_ptr<AST>;
 
@@ -14,7 +15,6 @@ public:
     virtual ~AST() = default;
 };
 
-// Binary Operation Node
 class BinOp : public AST {
 public:
     ASTPtr left;
@@ -24,7 +24,6 @@ public:
     BinOp(ASTPtr left, Token op, ASTPtr right);
 };
 
-// Number Node
 class Num : public AST {
 public:
     Token token;
@@ -33,7 +32,6 @@ public:
     Num(Token token);
 };
 
-// Unary Operation Node
 class UnaryOp : public AST {
 public:
     Token op;
@@ -42,7 +40,6 @@ public:
     UnaryOp(Token op, ASTPtr expr);
 };
 
-// Compound Node (for holding a list of statements)
 class Compound : public AST {
 public:
     std::vector<ASTPtr> children;
@@ -51,18 +48,15 @@ public:
     void addChild(ASTPtr child);
 };
 
-
-// Assignment Node
 class Assign : public AST {
 public:
-    ASTPtr left;
+    ASTPtr left;  // Should be a Var node
     Token op;
-    ASTPtr right;
+    ASTPtr right; // Should be an expression node
 
     Assign(ASTPtr left, Token op, ASTPtr right);
 };
 
-// Variable Node
 class Var : public AST {
 public:
     Token token;
@@ -71,7 +65,6 @@ public:
     Var(Token token);
 };
 
-// No Operation Node
 class NoOp : public AST {
 public:
     NoOp() noexcept;

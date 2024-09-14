@@ -6,7 +6,6 @@ Parser::Parser(Lexer& lexer) : lexer(lexer) {
     nextToken = lexer.getNextToken();
 }
 
-
 void Parser::eat(TokenType type) {
     if (currentToken.type == type) {
         currentToken = nextToken;
@@ -15,7 +14,6 @@ void Parser::eat(TokenType type) {
         throw std::runtime_error("Syntax error: Unexpected token '" + currentToken.value + "'");
     }
 }
-
 
 ASTPtr Parser::factor() {
     Token token = currentToken;
@@ -103,8 +101,6 @@ ASTPtr Parser::statement() {
     return node;
 }
 
-
-// New method to handle multiple statements
 ASTPtr Parser::program() {
     auto compound = std::make_unique<Compound>();
     while (currentToken.type != TokenType::END_OF_FILE) {
@@ -113,7 +109,6 @@ ASTPtr Parser::program() {
     return compound;
 }
 
-// Parse now uses the program method to handle the full input
 ASTPtr Parser::parse() {
     ASTPtr node = program();
     if (currentToken.type != TokenType::END_OF_FILE) {

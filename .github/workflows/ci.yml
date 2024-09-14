@@ -3,31 +3,41 @@ name: CI
 on:
   push:
     branches: 
-      - main
-      - '**'  # Triggers on all branches
+      - '**'  # Runs on all branches
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up CMake
-      uses: lukka/get-cmake@v3.25.0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake libgtest-dev
 
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y g++ cmake libgtest-dev
+      - name: Build Google Test
+        run: |
+          cd /usr/src/gtest
+          sudo cmake .
+          sudo make
+          sudo cp libg* /usr/lib/
 
-    - name: Configure CMake
-      run: cmake -S . -B build
+      - name: Create Build Directory
+        run: mkdir -p build
 
-    - name: Build
-      run: cmake --build build
+      - name: Configure CMake
+        run: cmake -S . -B build
 
-    - name: Run tests
-      run: cd build && ctest --output-on-failure
+      - name: Build Project
+        run: cmake --build build
+
+      - name: Run Tests
+        run: |
+          cd build
+          ctest --output-on-failure
