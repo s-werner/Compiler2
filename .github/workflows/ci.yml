@@ -26,9 +26,12 @@ jobs:
           cd /usr/src/gtest
           sudo cmake .
           sudo make
-          sudo cp *.a /usr/lib/
+      
+      - name: List GTest Libraries
+        run: |
+          cd /usr/src/gtest
+          ls -l *.a
         
-
       - name: Create Build Directory
         run: mkdir -p build
 
