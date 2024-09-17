@@ -93,3 +93,46 @@ TEST(ParserTest, ParsesCompoundStatements) {
     ASSERT_NE(numOpRight3, nullptr);
     EXPECT_DOUBLE_EQ(numOpRight3->value, 3.0);
 }
+
+TEST(ParserTest, ParsesVariableAssignments) {
+    std::string input = "a = 5; b = a + 2; c = b * (a - 3);";
+    ASTPtr tree = parseInput(input);
+
+    Compound* compound = dynamic_cast<Compound*>(tree.get());
+    ASSERT_NE(compound, nullptr);
+    ASSERT_EQ(compound->children.size(), 3);
+}
+
+TEST(ParserTest, ParsesFunctionDefinition) {
+    std::string input = R"(
+        function add(a, b) {
+            return a + b;
+        }
+    )";
+    ASTPtr tree = parseInput(input);
+
+    Compound* compound = dynamic_cast<Compound*>(tree.get());
+    ASSERT_NE(compound, nullptr);
+    ASSERT_EQ(compound->children.size(), 1);
+
+    FunctionDef* funcDef = dynamic_cast<FunctionDef*>(compound->children[0].get());
+    ASSERT_NE(funcDef, nullptr);
+    EXPECT_EQ(funcDef->name, "add");
+    EXPECT_EQ(funcDef->params.size(), 2);
+}
+
+/*
+TEST(ParserTest, ParsesIfElseStatements) {
+    std::string input = R"(
+        if (a == b) {
+            c = a + b;
+        } else {
+            c = a - b;
+        }
+    )";
+    ASTPtr tree = parseInput(input);
+
+    IfStatement* ifStmt = dynamic_cast<IfStatement*>(tree.get());
+    ASSERT_NE(ifStmt, nullptr);
+}
+*/

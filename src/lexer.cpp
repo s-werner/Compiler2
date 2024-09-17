@@ -89,7 +89,7 @@ Token Lexer::getNextToken() {
             return identifier();
         }
 
-        if (std::isdigit(currentChar)) {
+        if (std::isdigit(currentChar) || currentChar == '.') {
             return number();
         }
 

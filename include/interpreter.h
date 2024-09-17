@@ -18,10 +18,15 @@ public:
     Interpreter();
     double interpret(ASTPtr& tree);
 
+    double getVariableValue(const std::string& name) const;
+
 private:
     SymbolTable symbolTable;
     std::unordered_map<std::string, FunctionDef*> functions;
     std::unordered_map<std::string, ClassDef*> classes;
+
+    int recursionDepth;
+    const int MAX_RECURSION_DEPTH = 1000;
 
     // Visit methods
     double visit(AST* node);

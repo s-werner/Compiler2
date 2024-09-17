@@ -2,10 +2,14 @@
 #include <cmath>
 #include <stdexcept>
 
-Interpreter::Interpreter() {}
+Interpreter::Interpreter() : recursionDepth(0) {}
 
 double Interpreter::interpret(ASTPtr& tree) {
     return visit(tree.get());
+}
+
+double Interpreter::getVariableValue(const std::string& name) const {
+    return symbolTable.get(name);
 }
 
 double Interpreter::visit(AST* node) {
@@ -132,12 +136,19 @@ double Interpreter::visitFunctionCall(FunctionCall* node) {
 
     FunctionDef* funcDef = it->second;
 
+    // Check for maximum recursion depth
+    recursionDepth++;
+    if (recursionDepth > MAX_RECURSION_DEPTH) {
+        recursionDepth--;
+        throw std::runtime_error("Maximum recursion depth exceeded in function: " + node->name);
+    }
+
     // Create a new symbol table for the function scope
-    SymbolTable previousSymbolTable = symbolTable;
     symbolTable.enterScope();
 
     // Check if the number of arguments matches
     if (node->args.size() != funcDef->params.size()) {
+        recursionDepth--;
         throw std::runtime_error("Incorrect number of arguments in function call: " + node->name);
     }
 
@@ -147,19 +158,20 @@ double Interpreter::visitFunctionCall(FunctionCall* node) {
         symbolTable.set(funcDef->params[i], argValue);
     }
 
+    double result = 0.0;
+
     // Execute the function body
     try {
-        visit(funcDef->body.get());
+        result = visit(funcDef->body.get());
     } catch (const ReturnException& ret) {
-        symbolTable.leaveScope();
-        symbolTable = previousSymbolTable;
-        return ret.value;
+        result = ret.value;
     }
 
+    // Clean up
     symbolTable.leaveScope();
-    symbolTable = previousSymbolTable;
+    recursionDepth--;
 
-    return 0.0; // Default return value if none is specified
+    return result;
 }
 
 double Interpreter::visitClassDef(ClassDef* node) {
