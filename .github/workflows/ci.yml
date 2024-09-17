@@ -9,39 +9,23 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v1
+    - name: Install gtest manually
+      run: sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake CMakeLists.txt && sudo make && sudo cp lib/*.a /usr/lib && sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a && sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
+    - name: Create Build Directory
+      run: mkdir -p build
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake libgtest-dev
+    - name: Configure CMake
+      run: cmake -S . -B build
 
-      - name: Build Google Test
-        run: |
-          cd /usr/src/gtest
-          sudo cmake .
-          sudo make
-      
-      - name: List GTest Libraries
-        run: |
-          cd /usr/src/gtest
-          ls -l *.a
-        
-      - name: Create Build Directory
-        run: mkdir -p build
+    - name: Build Project
+      run: cmake --build build
 
-      - name: Configure CMake
-        run: cmake -S . -B build
-
-      - name: Build Project
-        run: cmake --build build
-
-      - name: Run Tests
-        run: |
-          cd build
-          ctest --output-on-failure
+    - name: Run Tests
+      run: |
+        cd build
+        ctest --output-on-failure
