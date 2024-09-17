@@ -3,14 +3,7 @@
 #include "../include/parser.h"
 #include "../include/interpreter.h"
 #include <memory>
-
-// Helper function to interpret an input string and return the result
-double interpretInput(const std::string& input, Interpreter& interpreter) {
-    Lexer lexer(input);
-    Parser parser(lexer);
-    ASTPtr tree = parser.parse();
-    return interpreter.interpret(tree);
-}
+#include "TestUtils.h"
 
 TEST(InterpreterTest, EvaluatesSimpleAddition) {
     Interpreter interpreter;
@@ -75,8 +68,8 @@ TEST(InterpreterTest, EvaluatesPowerOperator) {
 }
 
 TEST(InterpreterTest, EvaluatesModulusOperator) {
-    Interpreter interpreter;
-    double result = interpretInput("10 % 3;", interpreter);
+    std::string input = "result = 10 % 3;";
+    double result = interpretInput(input);
     EXPECT_DOUBLE_EQ(result, 1.0);
 }
 

@@ -2,14 +2,8 @@
 #include "../include/lexer.h"
 #include "../include/parser.h"
 #include "../include/ast.h"
+#include "TestUtils.h"
 #include <memory>
-
-// Helper function to parse an input string and return the AST
-ASTPtr parseInput(const std::string& input) {
-    Lexer lexer(input);
-    Parser parser(lexer);
-    return parser.parse();
-}
 
 TEST(ParserTest, ParsesVariableAssignment) {
     std::string input = "a = 5;";

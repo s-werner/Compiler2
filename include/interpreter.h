@@ -3,12 +3,27 @@
 
 #include "ast.h"
 #include "symboltable.h"
+#include <unordered_map>
+#include <string>
+
+// Custom exception for return statements
+class ReturnException : public std::exception {
+public:
+    double value;
+    ReturnException(double val) : value(val) {}
+};
 
 class Interpreter {
 public:
     Interpreter();
     double interpret(ASTPtr& tree);
+
 private:
+    SymbolTable symbolTable;
+    std::unordered_map<std::string, FunctionDef*> functions;
+    std::unordered_map<std::string, ClassDef*> classes;
+
+    // Visit methods
     double visit(AST* node);
     double visitBinOp(BinOp* node);
     double visitNum(Num* node);
@@ -17,7 +32,11 @@ private:
     double visitVar(Var* node);
     double visitNoOp(NoOp* node);
     double visitCompound(Compound* node);
-    SymbolTable symbolTable;
+    double visitFunctionDef(FunctionDef* node);
+    double visitFunctionCall(FunctionCall* node);
+    double visitClassDef(ClassDef* node);
+    double visitReturn(Return* node);
+    double visitIfStatement(IfStatement* node);
 };
 
 #endif // INTERPRETER_H

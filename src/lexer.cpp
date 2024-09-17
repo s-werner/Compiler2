@@ -2,9 +2,17 @@
 
 #include "lexer.h"
 #include <cctype>
+#include <stdexcept>
 
-Lexer::Lexer(const std::string& text)
-    : text(text), pos(0), currentChar(text[pos]) {}
+Lexer::Lexer(const std::string& text) : text(text), pos(0), currentChar(text[pos]) {
+    keywords = {
+        {"class", TokenType::CLASS},
+        {"function", TokenType::FUNCTION},
+        {"return", TokenType::RETURN},
+        {"if", TokenType::IF},
+        {"else", TokenType::ELSE},
+    };
+}
 
 void Lexer::advance() {
     pos++;
@@ -27,7 +35,7 @@ Token Lexer::integer() {
         result += currentChar;
         advance();
     }
-    return {TokenType::INTEGER, result};
+    return Token(TokenType::INTEGER, result);
 }
 
 Token Lexer::identifier() {
@@ -36,32 +44,38 @@ Token Lexer::identifier() {
         result += currentChar;
         advance();
     }
-    return {TokenType::IDENTIFIER, result};
+    // Check if the identifier is a reserved keyword
+    auto keywordIt = keywords.find(result);
+    if (keywordIt != keywords.end()) {
+        // It's a keyword
+        return Token(keywordIt->second, result);
+    } else {
+        // It's an identifier
+        return Token(TokenType::IDENTIFIER, result);
+    }
 }
+
 
 Token Lexer::number() {
     std::string result;
-    bool hasDecimalPoint = false;
-
-    // Loop to build the number string, handling integers and floats
-    while (currentChar != '\0' && (std::isdigit(currentChar) || currentChar == '.')) {
-        if (currentChar == '.') {
-            if (hasDecimalPoint) {
-                // If there's already a decimal point, it should stop reading further
-                break;  // This prevents multiple decimal points
-            }
-            hasDecimalPoint = true;
-        }
+    while (currentChar != '\0' && std::isdigit(currentChar)) {
         result += currentChar;
         advance();
     }
 
-    // Check if the number has a decimal point to decide if it's a float or integer
-    if (hasDecimalPoint) {
-        return {TokenType::FLOAT, result};
-    } else {
-        return {TokenType::INTEGER, result};
+    if (currentChar == '.') {
+        result += currentChar;
+        advance();
+
+        while (currentChar != '\0' && std::isdigit(currentChar)) {
+            result += currentChar;
+            advance();
+        }
+
+        return Token(TokenType::FLOAT, result);
     }
+
+    return Token(TokenType::INTEGER, result);
 }
 
 Token Lexer::getNextToken() {
@@ -70,62 +84,92 @@ Token Lexer::getNextToken() {
             skipWhitespace();
             continue;
         }
+
         if (std::isalpha(currentChar) || currentChar == '_') {
             return identifier();
         }
-        if (std::isdigit(currentChar) || currentChar == '.') {
+
+        if (std::isdigit(currentChar)) {
             return number();
         }
-        if (currentChar == '+') {
-            advance();
-            return {TokenType::PLUS, "+"};
-        }
-        if (currentChar == '-') {
-            advance();
-            return {TokenType::MINUS, "-"};
-        }
-        if (currentChar == '*') {
-            advance();
-            return {TokenType::MULTIPLY, "*"};
-        }
-        if (currentChar == '/') {
-            advance();
-            return {TokenType::DIVIDE, "/"};
-        }
-        if (currentChar == '%') {
-            advance();
-            return {TokenType::MODULUS, "%"};
-        }
-        if (currentChar == '^') {
-            advance();
-            return {TokenType::POWER, "^"};
-        }
-        if (currentChar == '=') {
-            advance();
-            return {TokenType::ASSIGN, "="};
-        }
-        if (currentChar == ';') {
-            advance();
-            return {TokenType::SEMICOLON, ";"};
-        }
-        if (currentChar == '(') {
-            advance();
-            return {TokenType::LEFT_PAREN, "("};
-        }
-        if (currentChar == ')') {
-            advance();
-            return {TokenType::RIGHT_PAREN, ")"};
-        }
 
-        // If the character is not recognized, move forward and return unknown token
-        std::string unknownChar(1, currentChar);
-        Token token = {TokenType::UNKNOWN, std::string(1, currentChar)};
-        std::cout << "Generated token: " << token.value << std::endl;
-        advance();
-        return {TokenType::UNKNOWN, unknownChar};
+        // Symbols
+        switch (currentChar) {
+            case '=':
+                advance();
+                if (currentChar == '=') {
+                    advance();
+                    return Token(TokenType::EQUALS, "==");
+                } else {
+                    return Token(TokenType::ASSIGN, "=");
+                }
+            case '!':
+                advance();
+                if (currentChar == '=') {
+                    advance();
+                    return Token(TokenType::NOT_EQUALS, "!=");
+                } else {
+                    throw std::runtime_error("Invalid token '!' without '='");
+                }
+            case '<':
+                advance();
+                if(currentChar == '=') {
+                    advance();
+                    return Token(TokenType::LESS_EQUAL, "<=");
+                } else {
+                    return Token(TokenType::LESS_THAN, "<");
+                }
+            case '>':
+                advance();
+                if (currentChar == '=') {
+                    advance();
+                    return Token(TokenType::GREATER_EQUAL, ">=");
+                } else {
+                    return Token(TokenType::GREATER_THAN, ">");
+                }
+            case '+':
+                advance();
+                return Token(TokenType::PLUS, "+");
+            case '-':
+                advance();
+                return Token(TokenType::MINUS, "-");
+            case '*':
+                advance();
+                return Token(TokenType::MULTIPLY, "*");
+            case '/':
+                advance();
+                return Token(TokenType::DIVIDE, "/");
+            case ';':
+                advance();
+                return Token(TokenType::SEMICOLON, ";");
+            case ',':
+                advance();
+                return Token(TokenType::COMMA, ",");
+            case '(':
+                advance();
+                return Token(TokenType::LEFT_PAREN, "(");
+            case ')':
+                advance();
+                return Token(TokenType::RIGHT_PAREN, ")");
+            case '{':
+                advance();
+                return Token(TokenType::LEFT_BRACE, "{");
+            case '}':
+                advance();
+                return Token(TokenType::RIGHT_BRACE, "}");
+            case '^':
+                advance();
+                return Token(TokenType::POWER, "^");
+            case '%':
+                advance();
+                return Token(TokenType::MODULUS, "%");
+            default:
+                throw std::runtime_error("Syntax error: Invalid factor");
+        }
+        throw std::runtime_error(std::string("Invalid character: ") + currentChar);
     }
 
     // Return END_OF_FILE token when no more characters are left to process
-    return {TokenType::END_OF_FILE, ""};
+    return Token(TokenType::END_OF_FILE, "");
 }
 

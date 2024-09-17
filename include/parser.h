@@ -22,6 +22,13 @@ private:
     ASTPtr assignmentStatement();
     ASTPtr variable();
     ASTPtr program();  // Method for parsing multiple statements
+    ASTPtr classDeclaration();
+    ASTPtr functionDeclaration();
+    ASTPtr block();
+    ASTPtr returnStatement();
+    ASTPtr expressionList();
+    ASTPtr condition();
+    ASTPtr ifStatement();
 };
 
 #endif // PARSER_H

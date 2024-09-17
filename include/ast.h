@@ -70,4 +70,47 @@ public:
     NoOp() noexcept;
 };
 
+// New AST Nodes
+class FunctionDef : public AST {
+public:
+    std::string name;
+    std::vector<std::string> params;
+    ASTPtr body;
+
+    FunctionDef(const std::string& name, const std::vector<std::string>& params, ASTPtr body);
+};
+
+class FunctionCall : public AST {
+public:
+    std::string name;
+    std::vector<ASTPtr> args;
+
+    FunctionCall(const std::string& name, std::vector<ASTPtr> args);
+};
+
+class ClassDef : public AST {
+public:
+    std::string name;
+    std::vector<ASTPtr> methods;
+
+    ClassDef(const std::string& name, std::vector<ASTPtr> methods);
+};
+
+class Return : public AST {
+public:
+    ASTPtr expr;
+
+    Return(ASTPtr expr);
+};
+
+class IfStatement : public AST {
+public:
+    ASTPtr condition;
+    ASTPtr thenBranch;
+    ASTPtr elseBranch;
+
+    IfStatement(ASTPtr condition, ASTPtr thenBranch, ASTPtr elseBranch = nullptr);
+};
+
+
 #endif // AST_H

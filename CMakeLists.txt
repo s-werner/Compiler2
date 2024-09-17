@@ -33,10 +33,13 @@ FetchContent_Declare(
 # Make available
 FetchContent_MakeAvailable(googletest)
 
+# Test utility files
+set(TEST_UTILS tests/TestUtils.cpp)
+
 # Add test executables
 file(GLOB TEST_SOURCES "tests/*.cpp")
 
-add_executable(runTests ${TEST_SOURCES} src/lexer.cpp src/parser.cpp src/ast.cpp src/interpreter.cpp src/symboltable.cpp)
+add_executable(runTests ${TEST_SOURCES} src/lexer.cpp src/parser.cpp src/ast.cpp src/interpreter.cpp src/symboltable.cpp ${TEST_UTILS})
 
 # Link Google Test libraries
 target_link_libraries(runTests gtest gtest_main)
