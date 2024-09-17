@@ -3,6 +3,7 @@
 #include "../include/parser.h"
 #include "../include/interpreter.h"
 #include <memory>
+#include <cmath>
 #include "TestUtils.h"
 
 TEST(InterpreterTest, EvaluatesSimpleAddition) {
